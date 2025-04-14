@@ -1,0 +1,351 @@
+\documentclass{article}
+
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2023
+
+
+% ready for submission
+\usepackage{subcaption,graphicx,float,amsmath,makecell, amsthm}
+\usepackage[final]{neurips_2023}
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2023}
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2023}
+
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2023}
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+
+\title{Kolmogorov-Arnold Networks}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{%
+  JS Vishnu Teja \\
+  \texttt{vishnutejas} \\
+  \texttt{@iisc.ac.in} \\
+  \And
+  L Sai Harsh \\
+  \texttt{saiharsh} \\
+  \texttt{@iisc.ac.in} \\
+  \And
+  K Bhargav Sashank \\
+  \texttt{bhargavsk} \\
+  \texttt{@iisc.ac.in} \\  
+  \And
+  Kunjan Manoj Kumar S \\
+  \texttt{manojkumark} \\  
+  \texttt{@iisc.ac.in} \\
+  \AND
+  Department of Mathematics and Computing \\
+  Indian Institute of Science, Bangalore, 560012, India
+}
+\begin{document}
+\maketitle
+\vspace{-5mm}
+\begin{abstract}
+  Kolmogorov-Arnold Networks (KANs) present a novel alternative to traditional Multi-Layer Perceptrons (MLPs), drawing inspiration from the Kolmogorov-Arnold Representation theorem rather than the universal approximation theorem. KANs mainly differ from MLPs by replacing fixed activation functions at nodes with learnable univariate functions on edges, implemented via splines. This shift leads to a significant improvements in both accuracy and interpretability which shows KANs are better than MLPs in certain aspects.  %\nicefrac{1}{2}~inch (3~picas) on
+  % both the left- and right-hand margins. Use 10~point type, with a vertical
+  % spacing (leading) of 11~points.  The word \textbf{Abstract} must be centered,
+  % bold, and in point size 12. Two line spaces precede the abstract. The abstract
+  % must be limited to one paragraph.
+\end{abstract}
+\section{Introduction}
+\vspace{-2mm}
+\newtheorem{theorem}{Theorem}
+\begin{theorem}[Kolmogorov–Arnold Representation(KART)]
+If $f : [0,1]^n \longrightarrow \mathbb{R}$ is a multivariate continuous function, then $f$ can be represented as a composition of continuous univariate functions.
+\[
+f(\mathbf{x}) = \sum_{q=0}^{2n} \Phi_q\left( \sum_{p=1}^n \phi_{q,p}(x_p) \right),
+\]
+\vspace{-3mm}
+where $\mathbf{x} = (x_1, x_2, \cdots, x_n)$; $\phi_{q,p} : [0,1] \longrightarrow \mathbb{R}$ and $\Phi_q : \mathbb{R} \longrightarrow \mathbb{R}$ are continuous functions.
+\vspace{-1mm}
+\end{theorem}
+\subsection{KAN v/s MLP}
+\vspace{-3mm}
+The research paper claims that
+theoretically and empirically, KANs possess faster neural scaling laws than MLPs. For interpretability, KANs can be intuitively visualized and can easily interact with human users. KANs seem to be a promising alternative for MLPs.
+\vspace{-3mm}
+\section{Methodology}
+\vspace{-3mm}
+KANs utilize univariate continuous learnable activation functions in place of traditional fixed nonlinearities. These activations are modeled using B-spline functions, enabling the network to flexibly approximate complex functional relationships while maintaining interpretability.
+\vspace{-4mm}
+\subsection{B-splines as Activation Functions in KANs}
+\vspace{-4mm}
+In KANs, each edge in the computational graph is assigned an activation function parameterized as a linear combination of B-spline basis functions \ref{B_splines}. That is, a univariate function $\phi(x)$ is used in place of weights, given by:
+\vspace{-3mm}
+\begin{center}
+    $\phi(x) = \sum_ic_iB_{i,k}(x)$
+\end{center}
+\vspace{-3mm}
+where $c_i$ are the learnable coefficients and $B_{i,k}(x)$ are the spline basis functions of order $k$. Optionally, KANs add a residual nonlinear function (e.g., SiLU) scaled by a learnable parameter:
+\begin{center}
+    $\phi(x) = w_b.\text{silu}(x) + w_s\sum_ic_iB_{i,k}(x)$
+\end{center}
+The choice of B-splines offers several advantages: smoothness, local control (due to compact support), and differentiability, making them ideal for use within backpropagation-based training with LBFGS optimizer \ref{LBFGS}.
+\newpage
+\section{Experiments}
+\vspace{-3mm}
+% To empirically validate the performance of KANs, we replicated all toy experiments described in Section 3.1 of the original KANs paper. These experiments focus on evaluating KANs against traditional MLPs in the context of function fitting, with an emphasis on neural scaling behaviour, generalization, and the role of compositional structure.
+We validated KANs empirically by replicating the toy experiments from Section 3.1 of the original paper, comparing their function-fitting performance to MLPs, with a focus on scaling, generalization, and compositional structure.
+\vspace{-4.5mm}
+\subsection{Neural Scaling Laws}
+\vspace{-4mm}
+The resulting log-log plots reveal that KANs consistently exhibit better neural scaling behavior than MLPs, particularly as input dimensionality increases. This indicates that KANs are more efficient in utilizing additional parameters and are less affected by the curse of dimensionality compared to traditional MLPs.\\
+To investigate neural scaling laws, we implemented both KANs and standard MLPs across a series of toy datasets as well as the MNIST dataset. Our objective was to study how the model performance scales with the number of parameters and to compare the scaling behavior of KANs and MLPs.
+\vspace{-4mm}
+\subsubsection{Experimental Setup}
+\vspace{-3mm}
+For each dataset, we trained both KAN and MLP models with varying numbers of parameters. We then measured the root mean squared error (RMSE) on a held-out test set and plotted $\log(\text{RMSE})$ against $\log(\text{Number\ of\ Parameters})$ to examine the neural scaling behavior. We considered a suite of synthetic functions with varying dimensionality and compositional complexity including:
+\vspace{-3mm}
+\begin{enumerate}
+    \item $f_1(x) = J_0(20x)$, where $J_0$ is the zeroth-order Bessel function of the first kind,
+    \item $f_2(x, y) = \exp(\sin(\pi x) + y^2)$,
+    \item $f_3(x, y) = xy$,
+    \item $f_4(x_1, x_2, \dots, x_{100}) = exp(\frac{1}{100}(\Sigma_{i=1}^{100}sin^2(\frac{\pi x_i}{2})))$,
+    \item $f_5(x_1, x_2, x_3, x_4) = \exp(\frac{1}{2}(sin(\pi(x_1^2 + x_2^2)) + sin(\pi(x_3^2 + x_4^2))))$,
+    \item MNIST image classification dataset.
+    \item On a few selected examples from the Feynman dataset 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Neural_1.jpeg}
+        \caption{$f_1(x)$}
+    \end{subfigure}
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Neural_1.jpeg}
+        \caption{$f_2(x, y)$}
+    \end{subfigure}
+    % \begin{subfigure}{0.23\textwidth}
+    %     \centering
+    %     \includegraphics[width=\textwidth]{Neural_1.jpeg}
+    %     \caption{$f_3(x, y)$}
+    % \end{subfigure}
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Neural_1.jpeg}
+        \caption{$f_4(x_1, x_2,\dots,x_{100})$}
+    \end{subfigure} 
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Neural_1.jpeg}
+        \caption{$f_5(x_1,x_2,x_3,x_4)$}
+    \end{subfigure}
+    \caption{Compare KANs to MLPs on five toy examples. KANs can saturate at a faster scaling bound as
+predicted by our theory ($\alpha=4$), while MLPs scales slowly and plateau quickly.}
+    \label{fig:subfigs}
+\end{figure}
+\end{enumerate}
+\vspace{-5mm}
+\subsection{Interpretability in Kolmogorov–Arnold Networks (KANs)}
+\vspace{-3mm}
+% One of the standout features of Kolmogorov–Arnold Networks (KANs) is their inherent \textbf{interpretability}, which distinguishes them from traditional multi-layer perceptrons (MLPs). KANs leverage the Kolmogorov–Arnold representation theorem, which states that any multivariate continuous function can be expressed as a superposition of continuous univariate functions and addition operations.
+KANs stand out for their inherent \textbf{interpretability}, setting them apart from MLPs. They leverage the \textbf{KART}, which expresses any multivariate continuous function as a composition of univariate functions and addition.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Inter_1.jpeg}
+        \caption{$f_6(x, y)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Inter_2.jpeg}
+        \caption{$f_7(x,y)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Inter_3.jpeg}
+        \caption{$f_8(x,y)$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.23\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{Inter_4.jpeg}
+        \caption{$f_9(x,y)$}
+    \end{subfigure}
+    \caption{Visualization of function composition in KANs. Each branch represents a learned univariate function, and the nodes represent summation.}
+    \label{fig:subfigs}
+\end{figure}
+\vspace{-6mm}
+As illustrated in Figure~\ref{fig:subfigs}, KANs construct functions via:
+\begin{itemize}
+    \item \textbf{Univariate functional transformations}: Inputs are transformed using learned 1D functions (i.e. B-splines) .
+    \item \textbf{Additive combinations}: These univariate outputs are then summed together at intermediate nodes.
+    \item \textbf{Hierarchical composition}: Complex functions are recursively built from simpler, interpretable components.
+\end{itemize}
+\vspace{-3mm}
+Each learned function in the network can be visualized and interpreted independently, allowing us to understand how the model transforms and combines inputs to produce outputs. This is in stark contrast to traditional neural networks where the internal feature representations are opaque and difficult to analyze.\\
+To evaluate the interpretability of KANs, we implemented KAN models on a series of toy datasets, each representing known univariate or multivariate functional forms. The objective was to assess whether KANs can accurately learn and replicate these functions in an interpretable manner. We trained the models on the following functions:
+\vspace{-3mm}
+\begin{enumerate}
+    \item $f_6(x, y) = \exp(J_0(20x) + y^2)$
+    \vspace{-2mm}
+    \item $f_7(x, y) = \sqrt{(1+x^2+y^2)}$
+    \vspace{-2mm}
+    \item $f_8(x, y) = \exp(\sin(\pi x) + y^2)$
+    \vspace{-2mm}
+    \item $f_9(x,y)=exp(x+y^2)$
+    \vspace{-2mm}
+    \item $f_{10}(x_1, x_2,x_3,x_4, x_5) = exp(\frac{1}{5}(\Sigma_{i=1}^{5}sin^2(\frac{\pi x_i}{2})))$
+\end{enumerate}
+Each KAN was trained using a small dataset sampled from the respective function's domain. After training, we visualized the learned univariate functions to demonstrate the inherent interpretability of KANs by verifying whether the model captured the functional forms accurately and represented them as compositions of simpler univariate functions.\\
+These experiments validate the potential of KANs to not only approximate complex functions, but also to do so in a way that preserves interpretability—a key advantage over traditional black-box neural networks.
+\vspace{-3mm}
+\subsection{KANs are promising alternatives for MLPs}
+\vspace{-3mm}
+We aimed to demonstrate that \textbf{KANs} are promising alternatives to traditional \textbf{MLPs}, especially in terms of interpretability and efficiency. To support this claim, we conducted the following experiments:
+\vspace{-3mm}
+\begin{enumerate}
+    \item \textbf{Function Approximation:} We implemented and trained KANs on selected \textit{Feynman functions}, as referenced in the original KAN paper. These functions serve as benchmarks for symbolic regression tasks.
+    \item \textbf{Classification Task:} We conducted a series of experiments on a subset of MNIST dataset(given in Question 2 of Assignment 2). The dataset consists of 10,000(8,000 for training and 2,000 for testing) grayscale images of handwritten digits, categorized into 10 distinct classes (digits 0 through 9).
+\end{enumerate}
+Our experiments focus on comparing the following metrics between KANs and MLPs:
+\vspace{-3mm}
+\begin{itemize}
+    \item Number of trainable parameters (By changing the depth and width of both KANs and MLPs)
+    \item Training time
+    \item Approximation error (Root mean squared error)
+    \item Interpretability of internal representations
+\end{itemize}
+\vspace{-2mm}
+The results indicate that \textbf{KANs can achieve similar or better performance with fewer parameters and improved interpretability}, particularly in symbolic or low-dimensional domains.
+\vspace{-2mm}
+\subsection{Results on Feymann Datasets}
+\vspace{-3mm}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+\makecell{\textbf{Empirical}\\ \textbf{formula}} & 
+\makecell{\textbf{Variables}} & 
+\makecell{\textbf{KAN} \\ \textbf{Shape}} & 
+\makecell{\textbf{KAN} \\ \textbf{Params}} & 
+\makecell{\textbf{MLP} \\ \textbf{Params}} & 
+\makecell{\textbf{KAN} \\ \textbf{Error}} & 
+\makecell{\textbf{MLP} \\ \textbf{Error}} & 
+\makecell{\textbf{KAN} \\ \textbf{Time}} & 
+\makecell{\textbf{MLP} \\ \textbf{Time}} \\
+\hline
+$\sqrt{1+a^2+b^2}$ & a,b & [2,1,1] & 144 & 4417 & $1.17 \times 10^{-3}$ & $4.17 \times 10^{-4}$& 45.17 & 6.31 \\
+\hline
+$a+ab$ & a,b & [3,3,1] & 204 & 4481 & $7.32\times10^{-5}$ & $2.55\times 10^{-5}$ & 40.25 & 8.01 \\
+\hline
+$n \ln(a)$ & a,n & [2,2,1] & 72 & 4417 & $3.29\times 10^{-5}$ & $4.17 \times 10^{-5}$ & 16.86 & 32.26 \\
+\hline
+\end{tabular}
+\caption{Comparison between KAN and MLP on different Feymann Datasets}
+\label{tab:kan_mlp_comparison}
+\end{table}
+\vspace{-5mm}
+\subsection{Results on MNIST dataset}
+\vspace{-3mm}
+We implemented KANs and MLPs on the MNIST dataset. To reduce computational complexity and improve efficiency, we applied Principal Component Analysis (PCA) to project the original $28 \times 28$ pixel images to a 100-dimensional space before training the models. We have used the a 3-layer KAN with different widths and compared it with 2-layer and 3-layer MLPs of different width and compared the accuracy by plotting \ref{fig:MNIST} accuracy v/s number of parameters.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{MNIST_Plot.jpeg}
+    \caption{Accuracy v/s Number of parameters on a subset of MNIST dataset}
+    \label{fig:MNIST}
+\end{figure}
+\vspace{-10mm}
+\subsection{Catastrophic Forgetting}
+\vspace{-3mm}
+Catastrophic forgetting is a major challenge in traditional neural networks like MLPs, where learning new tasks leads to forgetting previously acquired knowledge. In contrast, KANs leverage the local nature of spline basis functions, which ensures that updates during training affect only limited regions of the parameter space. As shown in Figure~\ref{fig:cf-kan} and Figure~\ref{fig:cf-mlp}, KANs retain previously learned regions even after sequential exposure to new data, unlike MLPs which tend to overwrite prior knowledge globally. This local plasticity of KANs makes them more biologically plausible and robust to sequential learning. Further details and extended experimental results can be found in \ref{cf-detail}.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.8\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Untitled.jpeg}
+        \caption{KAN predictions during sequential learning of Gaussian peaks.}
+        \label{fig:kan_catastrophic}
+    \end{subfigure}
+    \begin{subfigure}{0.8\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Untitled.jpeg}
+        \caption{KAN predictions during sequential learning of Gaussian peaks.}
+        \label{fig:kan_catastrophic}
+    \end{subfigure}
+    \begin{subfigure}{0.8\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{CataForgMLP.png}
+        \caption{MLP predictions during the same task, showing catastrophic forgetting.}
+        \label{fig:mlp_catastrophic}
+    \end{subfigure}
+    \caption{Comparison of KAN and MLP predictions on a sequential Gaussian peak learning task, demonstrating catastrophic forgetting in MLPs and locality-preserving behavior in KANs.}
+    \label{fig:cf_comparison}
+\end{figure}.
+\vspace{-16mm}
+\section{Conclusion}
+% To be added
+\newpage
+\appendix
+\section{Appendix}
+\subsection{B-splines and Cox-de Boor Recursion}\label{B_splines}
+B-splines are a class of piecewise polynomial functions commonly used for approximation and interpolation tasks. A B-spline of order $k$ is defined over a non-decreasing sequence of knots $\{t_0, t_1,\dots, t_{n+k}\}$, which partition the input domain. \\
+The B-spline basis functions are computed using the Cox–de Boor recursion formula:
+\begin{center}
+    $
+B_{i,0}(x) =
+\begin{cases}
+1 & \text{if } t_i \le x < t_{i+1}, \\
+0 & \text{otherwise}.
+\end{cases}
+    $ \\
+    $
+B_{i,k}(x) = \frac{x - t_i}{t_{i+k}-t_i}B_{i, k-1}(x) + \frac{t_{i+k+1}-x}{t_{i+k+1}-t_{i+1}}B_{i+1, k-1}(x)
+    $
+\end{center}
+These recursive definitions allow for efficient evaluation of splines of any order.
+\subsection{Optimization with L-BFGS}\label{LBFGS}
+KANs are typically trained using the Limited-memory Broyden–Fletcher–Goldfarb–Shanno (L-BFGS) optimizer, a quasi-Newton method suited for high-dimensional smooth optimization problems. Unlike first-order optimizers such as SGD or Adam, L-BFGS uses gradient information from multiple previous steps to approximate the inverse Hessian matrix.
+Given a loss function $\mathcal{L}(\theta)$ L-BFGS approximates the update direction $p_k$ by solving: 
+\begin{center}
+    $p_k = H_k\nabla\mathcal{L}(\theta_k)$,
+\end{center}
+where $H_k$ is the hessian approximation built from stored vectors $s_k = \theta_{k+1} - \theta_k$ and $y_k = \nabla\mathcal{L}_{k+1}-\nabla\mathcal{L}_{k}$. The optimization update is then:
+\begin{center}
+    $\theta_{k+1} = \theta_k + \alpha_kp_k,$
+\end{center}
+with $\alpha_k$ chosen via line search. In practice, the "limited version" only stores a small number of past updates to reduce memory usage. \\
+L-BFGS is particularly effective in KANs due to the smoothness of B-spline activation functions and the relatively small parameter count compared to traditional deep networks. It enables fast convergence without requiring mini-batch training or heavy regularization.
+\subsection{Catastrophic Forgetting}\label{cf-detail}
+Catastrophic forgetting is a serious problem in current machine learning systems. When a human masters a task and then switches to a new one, they typically retain the ability to perform the original task. Unfortunately, neural networks do not exhibit this property. When trained sequentially on multiple tasks, neural networks tend to overwrite previously learned knowledge.
+
+A key distinction between artificial neural networks and biological brains is the presence of functional locality in the latter. The human brain undergoes structural changes in localized regions relevant to the new task, leaving unrelated areas untouched. In contrast, most artificial neural networks—including MLPs—lack this locality, which is a likely cause of catastrophic forgetting.
+
+KANs, however, offer a potential solution due to their use of spline parameterizations. Spline bases are inherently local, so during training, only a few coefficients near the current data points are updated, preserving distant coefficients that may store important previous information. On the other hand, MLPs rely on global activation functions like ReLU, Tanh, or SiLU, causing even small updates to propagate across the network and overwrite unrelated regions.
+
+To demonstrate this, we used a simple 1D regression task involving five Gaussian peaks, where each peak's data is introduced sequentially. As illustrated in the figures above, KANs remodel only the region relevant to the current phase, while MLPs tend to overwrite previously learned peaks. This preliminary result suggests that KANs may be more resilient to catastrophic forgetting.
+
+While this toy example shows the promise of leveraging locality in KANs, it remains to be seen whether the benefits carry over to high-dimensional tasks. In future work, we aim to study how KANs can integrate with state-of-the-art continual learning strategies.
+\end{document} 
